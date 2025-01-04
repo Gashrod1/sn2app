@@ -2,6 +2,7 @@ package com.example.projetsn2
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -62,27 +63,31 @@ fun Banner() {
 
 @Composable
 fun ButtonRow() {
+    val context = androidx.compose.ui.platform.LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        SquareButton("Info") { context ->
-            context.startActivity(Intent(context, InfoActivity::class.java))
+        SquareButton("Info") {
+            Log.d("MainActivity", "Info button clicked")
+            val newIntent = Intent(context, InfoActivity::class.java)
+            context.startActivity(newIntent)
         }
-        SquareButton("Products") { context ->
-            context.startActivity(Intent(context, ProductsActivity::class.java))
+        SquareButton("Products") {
+            Log.d("MainActivity", "Products button clicked")
+            val newIntent = Intent(context, ProductsActivity::class.java)
+            context.startActivity(newIntent)
         }
     }
 }
 
 @Composable
-fun SquareButton(text: String, onClick: (android.content.Context) -> Unit) {
-    val context = androidx.compose.ui.platform.LocalContext.current
+fun SquareButton(text: String, onClick: () -> Unit) {
     Button(
-        onClick = { onClick(context) },
+        onClick = onClick,
         modifier = Modifier
             .size(100.dp)
-            .background(Color.Gray, shape = RoundedCornerShape(8.dp))
+            .background(Color.Gray)
     ) {
         Text(text = text)
     }
