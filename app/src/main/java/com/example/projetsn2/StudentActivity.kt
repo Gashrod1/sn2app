@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projetsn2.ui.theme.Projetsn2Theme
+import com.example.projetsn2.R // Assurez-vous que cette ligne est bien présente.
 
 class StudentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +45,10 @@ fun StudentScreen(studentName: String) {
         "Matt" -> "matt.peau@ecoles-epsi.net"
         else -> "student@ecoles-epsi.net"
     }
+
     val imageRes = when (studentName) {
-        "Ethan" -> R.drawable.ethan
-        "Matt" -> R.drawable.matt
+        "Ethan" -> R.drawable.default_image
+        "Matt" -> R.drawable.default_image
         else -> null
     }
 
@@ -58,19 +60,34 @@ fun StudentScreen(studentName: String) {
     ) {
         Banner(studentName)
         Spacer(modifier = Modifier.height(16.dp))
-        imageRes?.let {
+
+        if (imageRes != null) {
             Image(
-                painter = painterResource(id = it),
+                painter = painterResource(id = imageRes),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
                 contentScale = ContentScale.Crop
             )
+        } else {
+            Text(
+                text = "Aucune image disponible",
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
         }
+
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = email, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
+        Text(
+            text = email,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
         Spacer(modifier = Modifier.height(8.dp))
+
         val context = LocalContext.current
         Text(
             text = "www.epsi.fr",
