@@ -2,11 +2,13 @@ package com.example.projetsn2
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projetsn2.ui.theme.Projetsn2Theme
 
-data class Product( // Ajout de la classe Product ici
+data class Product(
     val name: String,
     val description: String,
     val imageRes: Int
@@ -28,6 +30,9 @@ class RayonActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val rayon = intent.getStringExtra("rayon") ?: "Rayon inconnu"
+
+        Log.d("RayonActivity", "Rayon sélectionné : $rayon")
+
         setContent {
             Projetsn2Theme {
                 Surface(color = MaterialTheme.colorScheme.background) {
@@ -41,6 +46,7 @@ class RayonActivity : ComponentActivity() {
 @Composable
 fun RayonScreen(rayon: String) {
     val context = LocalContext.current
+
     val products = when (rayon) {
         "boissons" -> listOf(
             Product("Coca", "Un soda pétillant au goût classique.", R.drawable.coca),
@@ -65,34 +71,41 @@ fun RayonScreen(rayon: String) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Banner(rayon)
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Produits - $rayon",
+            fontSize = 24.sp,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 16.dp)
+        )
 
-        if (products.isEmpty()) {
-            Text("Aucun produit disponible.", fontSize = 18.sp, color = Color.Red)
-        } else {
-            products.forEach { product ->
-                ProductRow(product)
-                Spacer(modifier = Modifier.height(16.dp))
+        // Liste des produits
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(products.size) { index ->
+                val product = products[index]
+                ProductRow(product) {
+                    val intent = Intent(context, ProductDetailActivity::class.java).apply {
+                        putExtra("product_name", product.name)
+                        putExtra("product_desc", product.description)
+                        putExtra("product_image", product.imageRes)
+                    }
+                    context.startActivity(intent)
+                }
             }
         }
     }
 }
 
 @Composable
-fun ProductRow(product: Product) {
-    val context = LocalContext.current
+fun ProductRow(product: Product, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                val intent = Intent(context, ProductDetailActivity::class.java).apply {
-                    putExtra("product_name", product.name)
-                    putExtra("product_desc", product.description)
-                    putExtra("product_image", product.imageRes)
-                }
-                context.startActivity(intent)
-            },
+            .clickable(onClick = onClick)
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -102,7 +115,7 @@ fun ProductRow(product: Product) {
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            Text(product.name, fontSize = 16.sp, color = Color.Black)
+            Text(product.name, fontSize = 18.sp, color = Color.Black)
             Text(product.description, fontSize = 14.sp, color = Color.Gray)
         }
     }
